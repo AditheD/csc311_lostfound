@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Campus Lost & Found</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f0ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 35px;
+            border-radius: 14px;
+            width: 380px;
+            max-width: 92%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #6737f5;
+            text-align: center;
+        }
+
+        p { text-align: center; color: #666; }
+
+        label {
+            display: block;
+            margin: 15px 0 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 22px;
+            background: #6737f5;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover { background: #5428d0; }
+
+        .success {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        a { color: #6737f5; }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h2>Campus Lost & Found</h2>
+    <p>Sign in to continue</p>
+
+    <div th:if="${param.registered}" class="success">
+        Account created. Please sign in.
+    </div>
+
+    <div th:if="${param.error}" class="error">
+        Wrong username or password.
+    </div>
+
+    <div th:if="${param.logout}" class="success">
+        You have signed out.
+    </div>
+
+    <form th:action="@{/login}" method="post">
+
+        <label for="username">Username</label>
+        <input type="text"
+               id="username"
+               name="username"
+               required>
+
+        <label for="password">Password</label>
+        <input type="password"
+               id="password"
+               name="password"
+               required>
+
+        <button type="submit">Sign in</button>
+    </form>
+
+    <p>
+        Don't have an account?
+        <a th:href="@{/register}">Register</a>
+    </p>
+
+</div>
+</body>
+</html>
