@@ -34,3 +34,5 @@ build/
 
 ### H2 database files (never commit data) ###
 data/
+*.mv.db
+*.trace.db
