@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Campus Lost &amp; Found</title>
+
+    <!-- CSRF token for secure POST requests -->
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+        }
+
+        h1 {
+            color: green;
+        }
+
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e9e2ff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .user-bar form {
+            margin: 0;
+        }
+
+        .logout-button {
+            background: #6737f5;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #5428d0;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Show signed-in username and logout button -->
+<div class="user-bar">
+        <span>
+            Signed in as
+            <strong th:text="${username}">User</strong>
+        </span>
+
+    <form th:action="@{/logout}" method="post">
+        <button class="logout-button" type="submit">
+            Sign out
+        </button>
+    </form>
+</div>
+
+<h1>Campus Lost &amp; Found</h1>
+
+<!-- Items come from /api/items -->
+<ul id="items"></ul>
+
+<h2>Found something?</h2>
+
+<form id="reportForm">
+    <p>
+        <input
+                id="title"
+                placeholder="What is it?"
+                required>
+    </p>
+
+    <p>
+        <input
+                id="location"
+                placeholder="Where did you find it?"
+                required>
+    </p>
+
+    <button type="submit">Report item</button>
+</form>
+
+<p id="message"></p>
+
+<script>
+    // Read CSRF token and header from Thymeleaf
+    const csrfToken = document
+        .querySelector('meta[name="_csrf"]')
+        .getAttribute("content");
+
+    const csrfHeader = document
+        .querySelector('meta[name="_csrf_header"]')
+        .getAttribute("content");
+
+    // Load all reported items
+    async function loadItems() {
+        try {
+            const response = await fetch("/api/items");
+
+            if (!response.ok) {
+                throw new Error("Could not load items.");
+            }
+
+            const items = await response.json();
+            const list = document.getElementById("items");
+
+            list.innerHTML = "";
+
+            for (const item of items) {
+                const li = document.createElement("li");
+
+                li.textContent =
+                    item.title + " – " + item.location;
+
+                list.appendChild(li);
+            }
+
+        } catch (error) {
+            document.getElementById("message").textContent =
+                "Error loading items.";
+        }
+    }
+
+    // Submit a new lost and found report
+    document.getElementById("reportForm")
+        .addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const message =
+                document.getElementById("message");
+
+            message.textContent = "";
+            message.className = "";
+
+            const item = {
+                title: document.getElementById("title").value,
+                location: document.getElementById("location").value
+            };
+
+            try {
+                const response = await fetch("/api/items", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        [csrfHeader]: csrfToken
+                    },
+
+                    body: JSON.stringify(item)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to report item.");
+                }
+
+                event.target.reset();
+
+                message.textContent =
+                    "Item reported successfully!";
+
+                message.className = "success";
+
+                await loadItems();
+
+            } catch (error) {
+                message.textContent =
+                    "Could not report item. Please try again.";
+
+                message.className = "error";
+            }
+        });
+
+    // Load items when the page opens
+    loadItems();
+</script>
+
+</body>
+</html>
